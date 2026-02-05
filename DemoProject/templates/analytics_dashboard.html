@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mental Health Analytics Dashboard</title>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: #e5e7eb;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #38bdf8;
+        }
+
+        h3 {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .chart-container {
+            width: 65%;
+            margin: 25px auto;
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.6);
+        }
+
+        canvas {
+            max-height: 300px;
+        }
+        .dashboard-btn {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.dashboard-btn a {
+    display: inline-block;
+    padding: 12px 22px;
+    background: #38bdf8;
+    color: #0f172a;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    transition: all 0.3s ease;
+}
+
+.dashboard-btn a:hover {
+    background: #0ea5e9;
+    transform: translateY(-2px);
+}
+    </style>
+</head>
+
+<body>
+
+<h2>📊 Mental Health Analytics Dashboard</h2>
+
+<!-- Stress vs Sleep -->
+<div class="chart-container">
+    <h3>Stress Level vs Sleep Hours</h3>
+    <canvas id="stressSleepChart"></canvas>
+</div>
+
+<!-- Screen Time Impact -->
+<div class="chart-container">
+    <h3>Screen Time Impact on Mental Health</h3>
+    <canvas id="screenChart"></canvas>
+</div>
+
+<!-- Monthly Trend -->
+<div class="chart-container">
+    <h3>Monthly Wellness Assessment Trend</h3>
+    <canvas id="monthlyChart"></canvas>
+</div>
+
+<script>
+    const stressSleepData = JSON.parse('{{ stress_sleep|escapejs }}') || [];
+    const screenPred = JSON.parse('{{ screen_pred|escapejs }}') || [];
+    const monthly = JSON.parse('{{ monthly|escapejs }}') || [];
+
+    /* ================= Stress vs Sleep ================= */
+    new Chart(document.getElementById('stressSleepChart'), {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Stress vs Sleep',
+                data: stressSleepData.map(item => ({ x: item[0], y: item[1] })),
+                backgroundColor: '#38bdf8'
+            }]
+        },
+        options: {
+            parsing: false,
+            scales: {
+                x: {
+                    title: { display: true, text: 'Stress Level', color: '#e5e7eb' },
+                    ticks: { color: '#e5e7eb' },
+                    grid: { color: '#334155' }
+                },
+                y: {
+                    title: { display: true, text: 'Sleep Hours', color: '#e5e7eb' },
+                    ticks: { color: '#e5e7eb' },
+                    grid: { color: '#334155' },
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: { labels: { color: '#e5e7eb' } }
+            }
+        }
+    });
+
+    /* ================= Screen Time Impact ================= */
+    let fit = 0, unfit = 0;
+    screenPred.forEach(item => item[1] === "Mentally Fit" ? fit++ : unfit++);
+
+    new Chart(document.getElementById('screenChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Mentally Fit', 'Mentally Unfit'],
+            datasets: [{
+                label: 'Students',
+                data: [fit, unfit],
+                backgroundColor: ['#22c55e', '#ef4444']
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    ticks: { color: '#e5e7eb' },
+                    grid: { color: '#334155' }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#e5e7eb' },
+                    grid: { color: '#334155' }
+                }
+            },
+            plugins: {
+                legend: { labels: { color: '#e5e7eb' } }
+            }
+        }
+    });
+
+    /* ================= Monthly Trend ================= */
+    new Chart(document.getElementById('monthlyChart'), {
+        type: 'line',
+        data: {
+            labels: monthly.map(item => `Month ${item[0]}`),
+            datasets: [{
+                label: 'Assessments',
+                data: monthly.map(item => item[1]),
+                borderColor: '#a78bfa',
+                backgroundColor: '#a78bfa',
+                tension: 0.4
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    ticks: { color: '#e5e7eb' },
+                    grid: { color: '#334155' }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#e5e7eb' },
+                    grid: { color: '#334155' }
+                }
+            },
+            plugins: {
+                legend: { labels: { color: '#e5e7eb' } }
+            }
+        }
+    });
+</script>
+<div class="dashboard-btn">
+    <a href="/stdDashboard/">🏠 Back to Dashboard</a>
+</div>
+</body>
+</html>
